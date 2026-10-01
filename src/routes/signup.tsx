@@ -1,0 +1,2 @@
+import { createFileRoute } from "@tanstack/react-router";import { AuthPage } from "@/components/phishguard/auth-pages";
+export const Route=createFileRoute("/signup")({head:()=>({meta:[{title:"Create Account — PhishGuard"},{name:"description",content:"Create a mock PhishGuard workspace account."},{property:"og:title",content:"Create Account — PhishGuard"},{property:"og:description",content:"Create a mock PhishGuard workspace account."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <AuthPage mode="signup"/>});
