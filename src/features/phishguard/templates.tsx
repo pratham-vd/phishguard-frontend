@@ -1,0 +1,11 @@
+import { useState } from "react";
+import { Eye, FileText, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/phishguard/app-shell";
+import { StatusBadge } from "@/components/phishguard/status";
+import { EmailPreview } from "./detail";
+import { templates } from "./mock-data";
+export function TemplatesPage(){const[selected,setSelected]=useState<string|null>(null);return <><PageHeader title="Template library" description="Review evaluated training emails generated for your awareness campaigns."/><div className="mb-4 flex justify-end"><div className="relative w-full md:w-72"><Search className="absolute left-3 top-2.5 size-4 text-muted-foreground"/><Input className="pl-9" placeholder="Search templates"/></div></div><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{templates.map((t)=><Card key={t.id} className="group"><CardContent className="p-5"><div className="flex items-start justify-between"><div className="grid size-10 place-items-center rounded-md bg-secondary"><FileText className="size-5 text-muted-foreground"/></div><StatusBadge status={t.status}/></div><h3 className="mt-5 font-semibold">{t.name}</h3><p className="mt-1 text-xs text-muted-foreground">{t.category} · {t.difficulty}</p><p className="mt-4 line-clamp-2 text-sm leading-6 text-muted-foreground">{t.preview}</p><div className="mt-5 flex items-center justify-between border-t pt-4"><div><p className="text-xs text-muted-foreground">AI realism</p><p className="font-mono font-semibold text-success">{t.score.toFixed(2)}</p></div><Button variant="outline" size="sm" onClick={()=>setSelected(t.id)}><Eye/>Preview</Button></div></CardContent></Card>)}</div><Dialog open={!!selected} onOpenChange={(v)=>!v&&setSelected(null)}><DialogContent className="max-h-[90vh] max-w-5xl overflow-auto"><DialogHeader><DialogTitle>Template review</DialogTitle></DialogHeader><EmailPreview/></DialogContent></Dialog></>}
