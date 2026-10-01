@@ -8,7 +8,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import type { UserRole } from "@/features/phishguard/types";
 import { cn } from "@/lib/utils";
 
-const nav = [
+type NavItem = { label: string; to: "/" | "/campaigns" | "/campaigns/create" | "/targets" | "/templates" | "/analytics" | "/insights" | "/settings"; icon: typeof Target; manage?: boolean };
+
+const nav: NavItem[] = [
   { label: "Overview", to: "/", icon: LayoutDashboard },
   { label: "Campaigns", to: "/campaigns", icon: Activity },
   { label: "Create campaign", to: "/campaigns/create", icon: Plus, manage: true },
@@ -17,7 +19,7 @@ const nav = [
   { label: "Analytics", to: "/analytics", icon: BarChart3 },
   { label: "AI insights", to: "/insights", icon: Bot },
   { label: "Settings", to: "/settings", icon: Settings },
-] as const;
+];
 
 const titles: Record<string, string> = { "/": "Security overview", "/campaigns": "Campaigns", "/campaigns/create": "Create campaign", "/targets": "Target management", "/templates": "Template library", "/analytics": "Analytics", "/insights": "AI insights", "/settings": "Settings" };
 
