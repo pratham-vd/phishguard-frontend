@@ -1,0 +1,26 @@
+import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, MoreHorizontal, Plus, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PageHeader } from "@/components/phishguard/app-shell";
+import { StatusBadge } from "@/components/phishguard/status";
+import { mockApi, queryKeys } from "./mock-service";
+import type { CampaignStatus } from "./types";
+
+export function CampaignsPage() {
+  const { data = [], isLoading } = useQuery({ queryKey: queryKeys.campaigns, queryFn: mockApi.getCampaigns });
+  const [search, setSearch] = useState(""); const [status, setStatus] = useState("ALL");
+  const filtered = useMemo(() => data.filter((item) => (status === "ALL" || item.status === status) && item.name.toLowerCase().includes(search.toLowerCase())), [data, search, status]);
+  return <><PageHeader title="Campaigns" description="Plan, generate, launch, and measure safe phishing simulations." actions={<Button asChild><Link to="/campaigns/create"><Plus />Create campaign</Link></Button>} />
+    <div className="rounded-lg border bg-card shadow-sm"><div className="flex flex-col gap-3 border-b p-4 lg:flex-row lg:items-center lg:justify-between"><Tabs value={status} onValueChange={setStatus}><TabsList className="h-auto flex-wrap justify-start"><TabsTrigger value="ALL">All</TabsTrigger>{(["DRAFT","GENERATING","READY","RUNNING","DONE"] as CampaignStatus[]).map((item)=><TabsTrigger key={item} value={item}>{item.toLowerCase()}</TabsTrigger>)}</TabsList></Tabs><div className="relative w-full lg:w-72"><Search className="absolute left-3 top-2.5 size-4 text-muted-foreground"/><Input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search campaigns" className="pl-9" /></div></div>
+      <div className="hidden overflow-x-auto md:block"><table className="w-full text-left text-sm"><thead className="border-b bg-muted/40 text-[11px] uppercase text-muted-foreground"><tr><th className="px-5 py-3 font-semibold">Campaign</th><th className="px-4 py-3 font-semibold">Status</th><th className="px-4 py-3 font-semibold">Audience</th><th className="px-4 py-3 font-semibold">Progress</th><th className="px-4 py-3 font-semibold">Performance</th><th className="w-12" /></tr></thead><tbody className="divide-y">{isLoading ? <tr><td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">Loading campaigns…</td></tr> : filtered.map((item)=><tr key={item.id} className="transition-colors hover:bg-muted/35"><td className="px-5 py-4"><Link to="/campaigns/$campaignId" params={{ campaignId: item.id }} className="font-medium hover:text-primary">{item.name}</Link><p className="mt-1 text-xs text-muted-foreground">{item.category} · {item.difficulty}</p></td><td className="px-4 py-4"><StatusBadge status={item.status}/></td><td className="px-4 py-4"><p>{item.targetGroup}</p><p className="text-xs text-muted-foreground">{item.result.targeted} employees</p></td><td className="min-w-36 px-4 py-4"><div className="flex items-center gap-2"><Progress value={item.progress}/><span className="text-xs">{item.progress}%</span></div></td><td className="px-4 py-4"><p className="font-medium">{item.result.clicked ? `${Math.round(item.result.clicked/item.result.targeted*100)}% click` : "Not launched"}</p><p className="text-xs text-muted-foreground">{item.result.reported ? `${Math.round(item.result.reported/item.result.targeted*100)}% reported` : item.createdAt}</p></td><td><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Actions for ${item.name}`}><MoreHorizontal/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem asChild><Link to="/campaigns/$campaignId" params={{campaignId:item.id}}>View details</Link></DropdownMenuItem><DropdownMenuItem>Duplicate</DropdownMenuItem><DropdownMenuItem>Export summary</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td></tr>)}</tbody></table></div>
+      <div className="divide-y md:hidden">{filtered.map((item)=><Link key={item.id} to="/campaigns/$campaignId" params={{campaignId:item.id}} className="block p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-medium">{item.name}</p><p className="mt-1 text-xs text-muted-foreground">{item.category} · {item.targetGroup}</p></div><StatusBadge status={item.status}/></div><div className="mt-4 flex items-center gap-2"><Progress value={item.progress}/><span className="text-xs">{item.progress}%</span><ArrowRight className="size-4"/></div></Link>)}</div>
+      {!isLoading && filtered.length === 0 && <div className="p-12 text-center"><Search className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-medium">No campaigns found</p><p className="text-sm text-muted-foreground">Adjust your search or status filter.</p></div>}
+    </div>
+  </>;
+}
