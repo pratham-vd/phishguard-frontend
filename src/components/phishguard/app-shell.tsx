@@ -32,27 +32,28 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canManage = role === "ADMIN" || role === "MANAGER";
 
   const sidebar = (
-    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200", collapsed ? "w-[72px]" : "w-64")}>
-      <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
+    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200", collapsed ? "w-[72px] lg:w-[72px]" : "w-[min(88vw,24rem)] lg:w-64")}>
+      <div className="flex h-20 shrink-0 items-center gap-4 border-b border-sidebar-border px-5">
         <div className="grid size-9 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"><ShieldCheck className="size-5" /></div>
-        {!collapsed && <div><div className="font-display text-base font-semibold">PhishGuard</div><div className="text-[11px] text-sidebar-foreground/55">AI Simulation Platform</div></div>}
+        {!collapsed && <div className="min-w-0 flex-1"><div className="font-display text-lg font-semibold leading-tight">PhishGuard</div><div className="mt-1 text-xs text-sidebar-foreground/55">AI Simulation Platform</div></div>}
+        {mobileOpen && <Button aria-label="Close navigation" variant="ghost" size="icon" className="shrink-0 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" onClick={() => setMobileOpen(false)}><X className="size-5" /></Button>}
       </div>
-      <nav className="flex-1 space-y-1 p-3" aria-label="Main navigation">
-        {!collapsed && <p className="px-3 pb-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45">Workspace</p>}
+      <nav className="flex-1 space-y-1.5 overflow-y-auto p-4" aria-label="Main navigation">
+        {!collapsed && <p className="px-3 pb-3 pt-3 text-[10px] font-semibold uppercase text-sidebar-foreground/45">Workspace</p>}
         {nav.filter((item) => !item.manage || canManage).map((item) => {
           const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-          return <TooltipProvider key={item.to}><Tooltip><TooltipTrigger asChild><Link to={item.to} onClick={() => setMobileOpen(false)} className={cn("flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium text-sidebar-foreground/68 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", active && "bg-sidebar-accent text-sidebar-accent-foreground")}><item.icon className="size-[18px] shrink-0" />{!collapsed && <span>{item.label}</span>}</Link></TooltipTrigger>{collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}</Tooltip></TooltipProvider>;
+          return <TooltipProvider key={item.to}><Tooltip><TooltipTrigger asChild><Link to={item.to} onClick={() => setMobileOpen(false)} className={cn("relative flex h-11 items-center gap-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/68 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", active && "bg-sidebar-accent text-sidebar-accent-foreground before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:bg-sidebar-primary")}><item.icon className={cn("size-[18px] shrink-0", active && "text-sidebar-primary")} />{!collapsed && <span>{item.label}</span>}</Link></TooltipTrigger>{collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}</Tooltip></TooltipProvider>;
         })}
       </nav>
-      <div className="border-t border-sidebar-border p-3">
-        <div className={cn("flex items-center gap-3 rounded-md bg-sidebar-accent/60 p-2", collapsed && "justify-center")}><div className="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">NS</div>{!collapsed && <div className="min-w-0"><p className="truncate text-xs font-medium">Northstar Systems</p><p className="text-[10px] text-sidebar-foreground/50">Enterprise workspace</p></div>}</div>
+      <div className="shrink-0 border-t border-sidebar-border p-4">
+        <div className={cn("flex items-center gap-3 rounded-md bg-sidebar-accent/60 p-3", collapsed && "justify-center")}><div className="grid size-10 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground">NS</div>{!collapsed && <div className="min-w-0"><p className="truncate text-sm font-medium">Northstar Systems</p><p className="mt-0.5 text-xs text-sidebar-foreground/50">Enterprise workspace</p></div>}</div>
       </div>
     </aside>
   );
 
   return <div className="flex min-h-screen bg-background text-foreground">
     <div className="fixed inset-y-0 left-0 z-50 hidden lg:block">{sidebar}</div>
-    {mobileOpen && <div className="fixed inset-0 z-50 lg:hidden"><button aria-label="Close navigation" className="absolute inset-0 bg-overlay" onClick={() => setMobileOpen(false)} /><div className="relative h-full w-64">{sidebar}<Button aria-label="Close navigation" variant="ghost" size="icon" className="absolute right-2 top-3 text-sidebar-foreground" onClick={() => setMobileOpen(false)}><X /></Button></div></div>}
+    {mobileOpen && <div className="fixed inset-0 z-50 lg:hidden"><button aria-label="Close navigation" className="absolute inset-0 bg-overlay backdrop-blur-[2px]" onClick={() => setMobileOpen(false)} /><div role="dialog" aria-modal="true" aria-label="Main navigation" className="relative ml-3 my-3 h-[calc(100dvh-1.5rem)] w-[min(88vw,24rem)] overflow-hidden rounded-2xl border border-sidebar-border shadow-2xl">{sidebar}</div></div>}
     <div className={cn("min-w-0 flex-1 transition-[margin] duration-200", collapsed ? "lg:ml-[72px]" : "lg:ml-64")}>
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur md:px-6">
         <div className="flex items-center gap-3"><Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu /></Button><Button variant="ghost" size="icon" className="hidden lg:inline-flex" onClick={() => setCollapsed((value) => !value)} aria-label="Toggle navigation"><Menu /></Button><div><p className="text-[11px] text-muted-foreground">Northstar Systems / Workspace</p><h1 className="font-display text-base font-semibold">{title}</h1></div></div>
